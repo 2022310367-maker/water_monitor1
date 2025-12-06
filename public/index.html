@@ -83,7 +83,7 @@
 </div>
 
 <script>
-  // 🔹 Set this to the public URL of your PHP login endpoint
+  // 🔹 Replace with your public PHP login URL
   const LOGIN_API_URL = "https://phpctud891.infinityfree.me/backend/login.php";
 
   document.getElementById("loginBtn").addEventListener("click", login);
@@ -110,7 +110,11 @@
       const data = await response.json();
 
       if (data.status === "success") {
-        // ✅ Login successful, redirect to dashboard
+        // ✅ Store JWT token in localStorage
+        localStorage.setItem('auth_token', data.token);
+        localStorage.setItem('username', data.data.username);
+
+        // Redirect to dashboard
         window.location.href = "dashboard.html";
       } else {
         msg.textContent = data.message || "Invalid login";
@@ -120,6 +124,27 @@
       msg.textContent = "Server communication error. Check API URL and CORS settings.";
     }
   }
+
+  // -------------------------
+  // Example helper to call protected APIs
+  // -------------------------
+  async function fetchProtectedData(apiUrl) {
+    const token = localStorage.getItem('auth_token');
+    if (!token) throw new Error("No token found, please log in.");
+
+    const res = await fetch(apiUrl, {
+      method: "GET",
+      headers: { "Authorization": `Bearer ${token}` }
+    });
+    const data = await res.json();
+    return data;
+  }
+
+  // Usage:
+  // fetchProtectedData("https://phpctud891.infinityfree.me/backend/data.php")
+  //   .then(console.log)
+  //   .catch(console.error);
+
 </script>
 </body>
 </html>
