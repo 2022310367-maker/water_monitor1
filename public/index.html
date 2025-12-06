@@ -1,0 +1,125 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Login - Water Monitoring System</title>
+
+  <style>
+    body {
+      margin: 0;
+      background: #0b74c9;
+      font-family: "Segoe UI", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .login-box {
+      background: white;
+      padding: 30px;
+      width: 320px;
+      border-radius: 12px;
+      box-shadow: 0px 4px 12px rgba(0,0,0,0.3);
+      text-align: center;
+      animation: fade 0.3s ease-in-out;
+    }
+
+    h2 { color: #0b74c9; }
+
+    input {
+      width: 90%;
+      padding: 12px;
+      margin: 10px 0;
+      border-radius: 6px;
+      border: 1px solid #bbb;
+      font-size: 14px;
+    }
+
+    button {
+      width: 95%;
+      padding: 12px;
+      background: #0b74c9;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      margin-top: 10px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: 0.2s;
+    }
+
+    button:hover {
+      background: #095a9e;
+      transform: scale(1.03);
+    }
+
+    #msg {
+      color: red;
+      margin-top: 10px;
+      min-height: 20px;
+      font-size: 14px;
+    }
+
+    @keyframes fade {
+      from {opacity:0; transform:translateY(20px);}
+      to {opacity:1; transform:translateY(0);}
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="login-box">
+  <h2>Water Monitor Login</h2>
+
+  <input type="text" id="user" placeholder="Enter username"/>
+  <input type="password" id="pass" placeholder="Enter password"/>
+
+  <button onclick="login()">Login</button>
+  <div id="msg"></div>
+</div>
+
+<script>
+  // 🛑 CHANGE THIS URL! It must be the public URL of your dedicated PHP server.
+  const LOGIN_API_URL = "http://localhost/water_monitor1/backend/login.php"; 
+
+  async function login() {
+    const username = document.getElementById("user").value.trim();
+    const password = document.getElementById("pass").value.trim();
+    const msg = document.getElementById("msg");
+
+    msg.textContent = "";
+
+    if (!username || !password) {
+      msg.textContent = "Please enter both username and password";
+      return;
+    }
+
+    try {
+      const res = await fetch(LOGIN_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await res.json();
+
+      if (data.status === "success") {
+        // Store token for future API calls (e.g., getting logs)
+        localStorage.setItem('auth_token', data.token);
+        
+        window.location.href = "dashboard.html";
+      } else {
+        msg.textContent = data.message || "Invalid login";
+      }
+    } catch (err) {
+      console.error(err);
+      // If this message appears, it means the Vercel frontend cannot talk to the PHP backend.
+      msg.textContent = "Server communication error. Check API URL and CORS settings.";
+    }
+  }
+</script></body>
+</html>
