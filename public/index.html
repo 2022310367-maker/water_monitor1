@@ -83,7 +83,7 @@
 </div>
 
 <script>
-  // Run login when Enter is pressed in either input box
+  // Press ENTER to log in
   document.addEventListener("keydown", function(event) {
     if (event.key === "Enter") {
       login();
@@ -102,7 +102,6 @@
       return;
     }
 
-    // SIMPLE LOGIN CHECK
     if (username === "admin" && password === "root") {
       localStorage.setItem("logged_in", "true");
       window.location.href = "dashboard.html";
@@ -114,4 +113,3 @@
 
 </body>
 </html>
-
