@@ -165,11 +165,11 @@
 
 <script>
     // 🛑 CHANGE THESE URLs! They must be the public addresses of your dedicated PHP server. 🛑
-    const API_BASE = "http://localhost/water_monitor1/public/backend/";
-    const API_LATEST = API_BASE + "api_latest.php";
-    const API_LOGS = API_BASE + "api_get_logs.php";
-    const API_LOGOUT = API_BASE + "logout.php";
-    const AUTH_TOKEN = localStorage.getItem('auth_token');
+    // In dashboard.html:
+const API_BASE = "https://phpctud891.infinityfree.me/backend/";
+const API_LATEST = API_BASE + "api_latest.php";
+const API_LOGS = API_BASE + "api_get_logs.php";
+const API_LOGOUT = API_BASE + "api_logout.php";
 
     // 1. Initial Check and Redirect if not logged in
     if (!AUTH_TOKEN) {
