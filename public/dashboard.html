@@ -137,6 +137,26 @@
             border-radius: 4px;
         }
         
+        /* Download Button */
+        .download-btn {
+            padding: 10px 20px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1em;
+            transition: 0.3s;
+        }
+        .download-btn:hover {
+            background: #229954;
+        }
+        .download-btn:disabled {
+            background: #95a5a6;
+            cursor: not-allowed;
+        }
+        
         /* Log Table */
         .logs-section h2 {
             color: #333;
@@ -170,6 +190,10 @@
 </head>
 
 <body>
+<!-- Load jsPDF library for PDF generation -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+
 <div class="header">
     <h1>Water Monitoring Dashboard</h1>
     <button class="logout-button" onclick="logout()">Logout</button>
@@ -216,7 +240,12 @@
     </div>
     
     <div class="logs-section">
-        <h2>Recent Sensor Logs</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0;">Recent Sensor Logs</h2>
+            <button class="download-btn" onclick="downloadPDF()">
+                📄 Download PDF Report
+            </button>
+        </div>
         <table id="logTable">
             <thead>
                 <tr>
@@ -371,7 +400,103 @@
         });
     }
 
-    // 5. Logout function
+    // 5. Download PDF Report function
+    function downloadPDF() {
+        const { jsPDF } = window.jspdf;
+        
+        if (!window.jspdf) {
+            alert('PDF library not loaded. Please refresh the page and try again.');
+            return;
+        }
+        
+        // Get current sensor data
+        const waterLevel = document.getElementById('levelValue').textContent;
+        const pH = document.getElementById('pHValue').textContent;
+        const temp = document.getElementById('tempValue').textContent;
+        const currentMode = document.getElementById('currentModeText').textContent;
+        
+        // Get log data from table
+        const logRows = document.querySelectorAll('#logTableBody tr');
+        const logs = [];
+        
+        logRows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            if (cells.length >= 5) {
+                logs.push([
+                    cells[0].textContent, // Timestamp
+                    cells[1].textContent, // Level
+                    cells[2].textContent, // pH
+                    cells[3].textContent, // Temp
+                    cells[4].textContent  // Mode
+                ]);
+            }
+        });
+        
+        // Create PDF
+        const doc = new jsPDF();
+        
+        // Add header
+        doc.setFontSize(20);
+        doc.setTextColor(11, 116, 201);
+        doc.text('Water Monitoring System Report', 105, 20, { align: 'center' });
+        
+        // Add generation date
+        doc.setFontSize(10);
+        doc.setTextColor(100);
+        const reportDate = new Date().toLocaleString();
+        doc.text(`Generated: ${reportDate}`, 105, 28, { align: 'center' });
+        
+        // Add current readings section
+        doc.setFontSize(14);
+        doc.setTextColor(0);
+        doc.text('Current Readings', 14, 45);
+        
+        doc.setFontSize(11);
+        doc.text(`Water Level: ${waterLevel}`, 20, 55);
+        doc.text(`pH Value: ${pH}`, 20, 62);
+        doc.text(`Temperature: ${temp}°C`, 20, 69);
+        doc.text(`System Mode: ${currentMode}`, 20, 76);
+        
+        // Add logs table
+        doc.setFontSize(14);
+        doc.text('Recent Sensor Logs', 14, 90);
+        
+        if (logs.length > 0) {
+            doc.autoTable({
+                startY: 95,
+                head: [['Timestamp', 'Level', 'pH', 'Temp (°C)', 'Mode']],
+                body: logs,
+                theme: 'striped',
+                headStyles: { fillColor: [11, 116, 201] },
+                styles: { fontSize: 9 },
+                margin: { top: 95 }
+            });
+        } else {
+            doc.setFontSize(10);
+            doc.setTextColor(150);
+            doc.text('No logs available', 20, 100);
+        }
+        
+        // Add footer
+        const pageCount = doc.internal.getNumberOfPages();
+        for (let i = 1; i <= pageCount; i++) {
+            doc.setPage(i);
+            doc.setFontSize(8);
+            doc.setTextColor(150);
+            doc.text(
+                `Page ${i} of ${pageCount} - Water Monitoring System`, 
+                105, 
+                doc.internal.pageSize.height - 10, 
+                { align: 'center' }
+            );
+        }
+        
+        // Save the PDF
+        const filename = `water_monitoring_report_${new Date().toISOString().slice(0, 10)}.pdf`;
+        doc.save(filename);
+    }
+
+    // 6. Logout function
     async function logout() {
         // 5a. Notify PHP backend to destroy the server session/token.
         try {
