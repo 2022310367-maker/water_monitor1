@@ -4,7 +4,6 @@
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Login - Water Monitoring System</title>
-
   <style>
     body {
       margin: 0;
@@ -15,7 +14,6 @@
       align-items: center;
       height: 100vh;
     }
-
     .login-box {
       background: white;
       padding: 30px;
@@ -25,9 +23,7 @@
       text-align: center;
       animation: fade 0.3s ease-in-out;
     }
-
     h2 { color: #0b74c9; }
-
     input {
       width: 90%;
       padding: 12px;
@@ -36,7 +32,6 @@
       border: 1px solid #bbb;
       font-size: 14px;
     }
-
     button {
       width: 95%;
       padding: 12px;
@@ -50,38 +45,30 @@
       font-size: 14px;
       transition: 0.2s;
     }
-
     button:hover {
       background: #095a9e;
       transform: scale(1.03);
     }
-
     #msg {
       color: red;
       margin-top: 10px;
       min-height: 20px;
       font-size: 14px;
     }
-
     @keyframes fade {
       from {opacity:0; transform:translateY(20px);}
       to {opacity:1; transform:translateY(0);}
     }
   </style>
 </head>
-
 <body>
-
 <div class="login-box">
   <h2>Water Monitor Login</h2>
-
   <input type="text" id="user" placeholder="Enter username"/>
   <input type="password" id="pass" placeholder="Enter password"/>
-
   <button onclick="login()">Login</button>
   <div id="msg"></div>
 </div>
-
 <script>
   // Press ENTER to log in
   document.addEventListener("keydown", function(event) {
@@ -89,29 +76,27 @@
       login();
     }
   });
-
+  
   function login() {
     const username = document.getElementById("user").value.trim();
     const password = document.getElementById("pass").value.trim();
     const msg = document.getElementById("msg");
-
     msg.textContent = "";
-
+    
     if (!username || !password) {
       msg.textContent = "Please enter both username and password";
       return;
     }
-
+    
     if (username === "admin" && password === "root") {
-      localStorage.setItem("logged_in", "true");
+      // Generate and store auth token (matches what dashboard.html expects)
+      const token = "auth_token_" + Date.now();
+      localStorage.setItem("auth_token", token);
       window.location.href = "dashboard.html";
     } else {
       msg.textContent = "Invalid login.";
     }
   }
 </script>
-
 </body>
 </html>
-
-
